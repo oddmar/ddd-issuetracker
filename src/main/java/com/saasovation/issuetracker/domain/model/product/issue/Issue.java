@@ -1,6 +1,8 @@
 package com.saasovation.issuetracker.domain.model.product.issue;
 
+import com.saasovation.issuetracker.common.domain.model.DomainEventPublisher;
 import com.saasovation.issuetracker.domain.model.product.Id;
+import com.saasovation.issuetracker.domain.model.product.issue.events.IssueReported;
 
 /**
  */
@@ -13,7 +15,7 @@ public class Issue {
     public String summary;
     public String description;
 
-    public Issue(String tenantId,
+    Issue(String tenantId,
                  Id productId,
                  Id issueId,
                  IssueType issueType,
@@ -27,14 +29,10 @@ public class Issue {
         this.summary = summary;
         this.description = description;
         this.severity = severity;
-    }
 
-    public void reportDefect(String tenantId, Id productId, String summary, String description, Severity severity) {
-        new Issue(tenantId, productId, Id.newId(), IssueType.DEFECT, severity, summary, description);
-    }
-
-    public void requestFeature(String summary, String description, Severity severity) {
-        new Issue(tenantId, productId, Id.newId(), IssueType.FEATURE_REQUEST, severity, summary, description);
+        IssueReported reportedEvent = new IssueReported(tenantId,
+                productId, issueId, issueType, severity, summary, description);
+        DomainEventPublisher.instance().publish(reportedEvent);
     }
 
     public void assign() {
